@@ -14,8 +14,12 @@ from copy import copy
 
 # take input to invoice directory
 month_path = os.path.join(str(input("Copy the full path of the month's invoices and paste it here:")), '')
+
 # print list of vendors
 print([i for i in os.listdir(month_path)])
+
+# initialise a list for failed vendors
+fail_list = []
 
 for vendor in os.listdir(month_path):
     vendor_date_list = []  # setup for date ordering invoices
@@ -30,11 +34,15 @@ for vendor in os.listdir(month_path):
         matches_222_dash = re.findall(r'\d{2}-\d{2}-\d{2}', raw['content'])
         matches_222_dot = re.findall(r'\d{2}.\d{2}.\d{2}', raw['content'])
         matches_224_dot = re.findall(r'\d{2}.\d{2}.\d{4}', raw['content'])
+        matches_232_space = re.findall(r'\d{2}\s\w{3}\s\d{2}', raw['content'])
+        matches_234_space = re.findall(r'\d{2}\s\w{3}\s\d{4}', raw['content'])
 
         # match methods to matches
         match_method_list = [(matches_222_dash, '%d-%m-%y'), (matches_224_dash, '%d-%m-%Y'),
                              (matches_222_slash, '%d/%m/%y'), (matches_224_slash, '%d/%m/%Y'),
-                             (matches_222_dot, '%d.%m.%y'), (matches_224_dot, '%d.%m.%Y')]
+                             (matches_222_dot, '%d.%m.%y'), (matches_224_dot, '%d.%m.%Y'),
+                             (matches_232_space, '%d %b %y'), (matches_234_space, '%d %b %Y')]
+
         # generate list of empty sublists for every method's detections
         date_sub_list = []
         for i in range(len(match_method_list)):
@@ -67,6 +75,7 @@ for vendor in os.listdir(month_path):
 
     # sort by date attached to invoice
     vendor_date_list.sort(key=lambda tup: tup[1])
+
     # initialise file numbering scheme
     file_number = 1
 
@@ -77,3 +86,10 @@ for vendor in os.listdir(month_path):
             os.rename(os.path.join(month_path + vendor, '') + str(file[0]),
                       os.path.join(month_path + vendor, '') + str(file_number).zfill(2) + ' - ' + str(file[0]))
             file_number += 1
+    else:
+        fail_list.append(vendor)
+
+if fail_list == []:
+    print('All directories renumbered!')
+else:
+    print('The following directories have failed: ' + str(fail_list))
