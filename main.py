@@ -30,9 +30,10 @@ def text_checker(file):
     else:
         return True
 
-
-for vendor in os.listdir(month_path):
+vendor_list = [i for i in os.listdir(month_path) if os.path.isdir(month_path + i)]
+for vendor in vendor_list:
     vendor_date_list = []  # setup for date ordering invoices
+
     for invoice in os.listdir(month_path + vendor):
         # go through every invoice per vendor and parse the pdf to text
         # skip statements and non-pdfs
