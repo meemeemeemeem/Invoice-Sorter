@@ -30,6 +30,7 @@ def text_checker(file):
     else:
         return True
 
+
 vendor_list = [i for i in os.listdir(month_path) if os.path.isdir(month_path + i)]
 for vendor in vendor_list:
     vendor_date_list = []  # setup for date ordering invoices
@@ -85,13 +86,14 @@ for vendor in vendor_list:
                 date_list = [i for j in date_sub_list for i in j]
                 date_list.sort()
 
-                # if the list is not empty, add the invoice name and earliest date in the invoice to the vendor date list
+                # if the list is not empty, add the invoice name and earliest date in the invoice
+                # to the vendor date list
                 if date_list != []:
                     vendor_date_list.append(
                         (invoice, date_list[0]))  # earliest entry is most likely to be the invoice date
 
-    # sort by date attached to invoice
-    vendor_date_list.sort(key=lambda tup: tup[1])
+    # sort by date attached to invoice, then by string without ".PDF"
+    vendor_date_list.sort(key=lambda tup: (tup[1], tup[0][:-4]))
 
     # initialise file numbering scheme
     file_number = 1
@@ -102,8 +104,10 @@ for vendor in vendor_list:
             # rename command use padded 2-digit values and a hyphen
             os.rename(os.path.join(month_path + vendor, '') + str(file[0]),
                       os.path.join(month_path + vendor, '') + str(file_number).zfill(2) + ' - ' + str(file[0]))
+            # increment the ordering number
             file_number += 1
     else:
+        # add the failed folder to the list of failed vendors
         fail_list.append(vendor)
 
 if fail_list == []:
