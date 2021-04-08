@@ -9,11 +9,20 @@ import re
 import os
 from copy import copy
 
-# can be implemented in future to prevent incorrect year using now.year, currently unnecessary
-# now = datetime.now()
+# get current time
+now = datetime.now()
 
 # take input to invoice directory
 month_path = os.path.join(str(input("Copy the full path of the month's invoices and paste it here:")), '')
+
+# take input to have invoice year
+current_year = input("Enter the year of the invoices (leave blank for current year): ")
+
+# default to current year if input is empty
+if current_year == "":
+    current_year = now.year
+else:
+    current_year = int(current_year)
 
 # print list of vendors
 print([i for i in os.listdir(month_path)])
@@ -24,6 +33,9 @@ fail_list = []
 
 # text pdf checker function
 def text_checker(file):
+    """
+    Function to filter our empty strings and hidden file names.
+    """
     text_test = parser.from_file(file)
     if text_test == "" or file.lower().startswith('._'):
         return False
@@ -64,14 +76,6 @@ for vendor in vendor_list:
                 for i in range(len(match_method_list)):
                     date_sub_list.append([])
 
-                # TODO: get datefinder to stop spitting out errors in a try-except loop
-                # date_sub_list_checker = copy(date_sub_list)
-                # if date_sub_list == date_sub_list_checker:
-                #     try:
-                #         date_sub_list[-1] = datefinder.find_dates(raw['content'],strict=True)
-                #     except:
-                #         pass
-
                 # for loop to go through each of the methods and try to convert the date string into a datetime object
                 for method in match_method_list:
                     for match in method[0]:
@@ -82,8 +86,9 @@ for vendor in vendor_list:
                         except:
                             pass
 
-                # flatten and sort the date list
-                date_list = [i for j in date_sub_list for i in j]
+                # flatten, filter and sort the date list
+                date_list_unfiltered = [i for j in date_sub_list for i in j]
+                date_list = [i for i in date_list_unfiltered if i.year == current_year]
                 date_list.sort()
 
                 # if the list is not empty, add the invoice name and earliest date in the invoice
