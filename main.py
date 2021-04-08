@@ -1,13 +1,11 @@
 ###
-# A small script to rename invoices in date order - requires tika and datefinder
+# A small script to rename invoices in date order - requires tika and datetime
 ###
 
 from tika import parser
 from datetime import datetime
-import datefinder
 import re
 import os
-from copy import copy
 
 # get current time
 now = datetime.now()
@@ -15,13 +13,14 @@ now = datetime.now()
 # take input to invoice directory
 month_path = os.path.join(str(input("Copy the full path of the month's invoices and paste it here:")), '')
 
-# take input to have invoice year
+# take input for invoice year
 current_year = input("Enter the year of the invoices (leave blank for current year): ")
 
 # default to current year if input is empty
 if current_year == "":
     current_year = now.year
 else:
+    # make integer to match later
     current_year = int(current_year)
 
 # print list of vendors
@@ -54,8 +53,9 @@ for vendor in vendor_list:
                 and text_checker(os.path.join(month_path + vendor, '') + str(invoice)):
             raw = parser.from_file(os.path.join(month_path + vendor, '') + str(invoice))
 
-            # known methods to find dates via regex if there the text is in a string
+            # prevent regex errors by forcing string input
             if isinstance(raw['content'], str):
+                # known methods to find dates via regex if there the text is in a string
                 matches_224_slash = re.findall(r'\d{2}/\d{2}/\d{4}', raw['content'])
                 matches_222_slash = re.findall(r'\d{2}/\d{2}/\d{2}', raw['content'])
                 matches_224_dash = re.findall(r'\d{2}-\d{2}-\d{4}', raw['content'])
