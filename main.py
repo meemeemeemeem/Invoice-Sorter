@@ -11,7 +11,7 @@ import os
 now = datetime.now()
 
 # take input to invoice directory
-month_path = os.path.join(str(input("Copy the full path of the month's invoices and paste it here:")), '')
+month_path = os.path.join(str(input("Copy the full path of the month's invoices and paste it here: ")), '')
 
 # take input for invoice year
 current_year = input("Enter the year of the invoices (leave blank for current year): ")
